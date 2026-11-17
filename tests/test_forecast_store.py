@@ -1,0 +1,60 @@
+from datetime import date
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
+from forecast_store import save_forecast, list_forecasts, load_forecast
+
+
+class StoreTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.path = Path(self.temp.name) / "history.db"
+        self.frame = pd.DataFrame({
+            "Hour starting (Asia/Manila)": pd.date_range("2026-11-18", periods=24, freq="h"),
+            "Estimated power (kW)": [2.] * 24,
+            "Estimated energy (kWh)": [2.] * 24,
+        })
+
+    def save(self, fetched="2026-11-17T12:00:00+08:00", unit="kW", model="v1"):
+        return save_forecast(self.frame, date(2026, 11, 18), fetched,
+                             8.4542, 124.6319, unit, model, self.path)
+
+    def test_persists_after_reopening_and_round_trips(self):
+        run_id = self.save()
+        runs = list_forecasts(self.path)
+        self.assertEqual(runs.iloc[0].daily_energy_kwh, 48.)
+        self.assertEqual(runs.iloc[0].target_date, "2026-11-18")
+        pd.testing.assert_frame_equal(load_forecast(run_id, self.path), self.frame, check_dtype=False)
+
+    def test_cached_rerun_does_not_duplicate(self):
+        self.assertEqual(self.save(), self.save())
+        self.assertEqual(len(list_forecasts(self.path)), 1)
+
+    def test_refresh_and_changed_assumptions_preserve_versions(self):
+        first = self.save()
+        self.save(fetched="2026-11-17T13:00:00+08:00")
+        self.save(unit="W")
+        self.save(model="v2")
+        self.assertEqual(len(list_forecasts(self.path)), 4)
+        self.assertEqual(len(load_forecast(first, self.path)), 24)
+
+    def test_empty_history_and_missing_run(self):
+        self.assertTrue(list_forecasts(self.path).empty)
+        with self.assertRaises(ValueError):
+            load_forecast(123, self.path)
+
+    def test_partial_day_is_not_stored(self):
+        self.frame = self.frame.iloc[:12]
+        with self.assertRaises(ValueError):
+            self.save()
+        self.assertTrue(list_forecasts(self.path).empty)
+
+
+if __name__ == "__main__":
+    unittest.main()

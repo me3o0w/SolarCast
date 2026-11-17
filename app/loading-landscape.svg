@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" fill="none">
+<defs>
+ <linearGradient id="hill" x2=".8" y2="1"><stop stop-color="#244b61"/><stop offset="1" stop-color="#111e36"/></linearGradient>
+ <linearGradient id="roof" x2="1" y2="1"><stop stop-color="#99725d"/><stop offset="1" stop-color="#343348"/></linearGradient>
+ <linearGradient id="wall" x2="1" y2="1"><stop stop-color="#7a8b98"/><stop offset="1" stop-color="#344459"/></linearGradient>
+ <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#254c56"/><stop offset="1" stop-color="#0a1629"/></linearGradient>
+ <linearGradient id="panel" x2="1" y2="1"><stop stop-color="#507a94"/><stop offset="1" stop-color="#172d4b"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#ffc979" stop-opacity=".24"/><stop offset="1" stop-color="#ffc979" stop-opacity="0"/></radialGradient>
+ <g id="house">
+  <ellipse cx="90" cy="164" rx="115" ry="12" fill="#050c1e" opacity=".5"/>
+  <path d="M22 79 67 17 115 81V160H22Z" fill="url(#wall)"/>
+  <path d="M115 81 186 68V146L115 160Z" fill="#233247"/>
+  <path d="m67 17 72-13 65 76-89 8Z" fill="url(#roof)" stroke="#9c7862" stroke-opacity=".4" stroke-width="2"/>
+  <path d="m10 84 57-67 48 71-12-1-37-52-42 51Z" fill="#b28b72"/>
+  <path d="m22 89 44-54 37 52v73H22Z" fill="url(#wall)"/>
+  <path d="M61 53 45 78h33Z" fill="#152942" stroke="#c29c78" stroke-width="3"/>
+  <path d="m84 26 36-6 29 33-39 7Z" fill="url(#panel)" stroke="#89a1ad" stroke-width="1.5"/>
+  <path d="m96 24 28 33m-16-35 28 33M94 38l37-7m-27 18 37-7" stroke="#94afc1" stroke-opacity=".55" stroke-width=".8"/>
+  <path d="M36 108h25v34H36z" fill="#ffcd87" opacity=".85"/>
+  <path d="M48 108v34m-12-17h25" stroke="#334154" stroke-width="3"/>
+  <path d="M76 113h18v47H76Z" fill="#15233a"/>
+  <path d="m129 105 16-3v24l-16 3Zm30-6 15-3v24l-15 3Z" fill="#f0b56d" opacity=".55"/>
+  <path d="m155 28-2-29 15-3 1 46" fill="#4d4550"/>
+  <ellipse cx="49" cy="145" rx="43" ry="30" fill="url(#light)"/>
+  <path d="M22 97h81M28 151h75m14-17 69-14" stroke="#9ab2bc" stroke-opacity=".12" stroke-width="2"/>
+ </g>
+ <g id="pine"><path d="m0 0-17 37h9l-17 30h18l-17 28h48L7 67h18L8 37h9Z" fill="#0a1b2e"/><path d="M-2 86h4v24h-4Z" fill="#101a2a"/></g>
+</defs>
+<path d="M0 126 76 112 145 71 217 113 275 102 365 139 443 113 560 167 684 132 779 119 877 65 946 98 1038 81 1137 36 1200 70V330H0Z" fill="#152f4c"/>
+<path d="m0 146 145-75-49 45 101 27 78-41 90 37 78-26-39 29 111 40-88 25Z" fill="#23435d" opacity=".4"/>
+<path d="M0 157C139 132 213 184 354 169S591 227 722 188 999 122 1200 147V330H0Z" fill="url(#hill)"/>
+<path d="M0 170c168-8 215 38 361 16s237 57 365 16 291-58 474-39" stroke="#5d8a8d" stroke-opacity=".18" stroke-width="2"/>
+<path d="M0 230c159-36 286-23 405 11s258-12 414-44 269-8 381 10v123H0Z" fill="#142c40"/>
+<use href="#pine" transform="translate(31 150) scale(.7)"/><use href="#pine" transform="translate(1177 78) scale(1.5)"/><use href="#pine" transform="translate(1122 139) scale(.85)"/>
+<use href="#house" transform="translate(393 154) scale(.52)" opacity=".8"/>
+<use href="#house" transform="translate(83 191) scale(.62)"/>
+<use href="#house" transform="translate(894 80) scale(1.02)"/>
+<use href="#house" transform="translate(784 192) scale(.68)"/>
+<path d="M0 288c191-33 316 15 500-3s308 12 426-12 198-5 274 4v53H0Z" fill="url(#ground)"/>
+<path d="M0 297c195-33 316 14 500-5s316 7 431-12" stroke="#70948b" stroke-opacity=".15" stroke-width="2"/>
+</svg>
