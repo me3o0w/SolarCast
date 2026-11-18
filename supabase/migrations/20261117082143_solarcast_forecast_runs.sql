@@ -24,7 +24,7 @@ create index if not exists solarcast_forecast_runs_history_idx
     on public.solarcast_forecast_runs (target_date desc, weather_fetched_at desc, id desc);
 
 alter table public.solarcast_forecast_runs enable row level security;
-revoke all on public.solarcast_forecast_runs from public, anon, authenticated, service_role;
+revoke all on public.solarcast_forecast_runs from public, anon, authenticated;
 grant select, insert on public.solarcast_forecast_runs to service_role;
 grant usage, select on sequence public.solarcast_forecast_runs_id_seq to service_role;
 
