@@ -48,3 +48,7 @@ desktop.ini
 # Local forecast database
 data/solarcast.db
 data/solarcast.db-*
+
+# Local tooling
+node_modules/
+supabase/.temp/

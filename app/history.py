@@ -30,5 +30,5 @@ def render_history():
         st.info("The dataset contains no power readings to plot.")
         return
 
-    st.caption("Hourly averages of recorded AC power. Readings at the same timestamp are averaged first.")
+    st.caption("Recorded AC power · Hourly averages")
     st.line_chart(hourly, height=340, color="#ffb95e")

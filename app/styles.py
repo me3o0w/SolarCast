@@ -4,26 +4,189 @@ from pathlib import Path
 import streamlit as st
 
 
+PAGE_LOADING_CSS = """
+.sc-page-loading {position:fixed;inset:0;z-index:10000002;display:grid;place-items:center;background:#030326;color:#70ccff;min-height:100dvh;padding:24px;}
+.sc-page-loader-content {width:min(100%,360px);text-align:left;}
+.sc-page-loader-icon {font-size:42px;line-height:1.4;margin-bottom:18px;color:#7bd5ff;animation:sc-page-float 2s ease-in-out infinite;}
+.sc-page-loader-title {color:#e2f3ff;font-size:22px;font-weight:600;margin-bottom:28px;}
+.sc-page-loader-label {font-size:18px;margin-bottom:5px;}
+.sc-page-loader-bar {display:flex;gap:6px;border:2px solid #49baff;padding:3px;height:30px;box-shadow:0 0 0 2px #12264b;}
+.sc-page-loader-bar i {flex:1;min-width:0;background:#45c7ff;opacity:.15;animation:sc-page-segment 1.5s ease-in-out infinite;animation-delay:calc(var(--segment) * .1s);}
+.sc-page-loader-content p {color:#8ba6c7;font-size:13px;margin-top:18px;line-height:1.6;}
+.sc-page-archive .sc-page-loader-bar i {animation-direction:reverse;}
+.sc-page-tuning .sc-page-loader-bar i {animation-delay:calc(var(--segment) * -.16s);}
+.sc-page-power .sc-page-loader-bar i {transform-origin:bottom;animation-name:sc-page-power;}
+.sc-page-metrics .sc-page-loader-bar i {animation-name:sc-page-metrics;animation-delay:calc(var(--segment) * -.22s);}
+.sc-page-terms .sc-page-loader-bar i {animation-delay:calc(var(--segment) * .08s);animation-duration:1.8s;}
+.sc-page-about .sc-page-loader-bar i {animation-delay:calc(var(--segment) * -.12s);animation-duration:2s;}
+@keyframes sc-page-segment {0%,100% {opacity:.15;} 45% {opacity:1;box-shadow:0 0 8px #34b9ff55;}}
+@keyframes sc-page-power {0%,100% {opacity:.3;transform:scaleY(.3);} 50% {opacity:1;transform:scaleY(1);}}
+@keyframes sc-page-metrics {0%,100% {opacity:.25;transform:scaleY(.5);} 50% {opacity:1;transform:scaleY(1);}}
+@keyframes sc-page-float {50% {transform:translateY(-5px);}}
+@media (prefers-reduced-motion:reduce) {
+ .sc-page-loader-icon,.sc-page-loader-bar i {animation:none;}
+ .sc-page-loader-bar i {opacity:.7;}
+}
+html:has(.sc-page-loading),body:has(.sc-page-loading) {overflow:hidden;overscroll-behavior:none;}
+"""
+
+
+def apply_auth_styles():
+    background = b64encode(Path(__file__).with_name("login-background.png").read_bytes()).decode("ascii")
+    st.html("""
+<style>
+.stApp:has(.st-key-solar_auth_panel) {
+ background:#63b4f2 url("data:image/png;base64,LOGIN_BACKGROUND") center bottom / cover no-repeat;
+}
+.stApp:has(.st-key-solar_auth_panel) [data-testid="stHeader"] {background:transparent;}
+.stMainBlockContainer:has(.st-key-solar_auth_panel) {
+ box-sizing:border-box;width:100%;min-height:100vh;min-height:100dvh;
+ height:auto;flex-shrink:0;padding:3rem 1rem;
+ display:flex;align-items:center;justify-content:center;
+}
+.stMainBlockContainer:has(.st-key-solar_auth_panel) > [data-testid="stVerticalBlock"] {
+ align-items:center;
+}
+.st-key-solar_auth_panel {
+ box-sizing:border-box;padding:clamp(1.25rem,5vw,2rem);
+ background:transparent;
+ -webkit-backdrop-filter:blur(26px);
+ backdrop-filter:blur(26px);
+ border:1px solid rgba(236,250,255,.56);border-radius:32px;
+ box-shadow:
+  0 16px 44px rgba(12,52,94,.22),
+  inset 1px 2px 3px rgba(255,255,255,.82),
+  inset -1px -2px 4px rgba(249,254,255,.56),
+  inset 0 -12px 28px rgba(54,122,176,.12);
+}
+.st-key-solar_auth_panel h1 {
+ color:#0c223a;text-align:center;padding-top:0;
+ font-size:clamp(2rem,7vw,2.65rem);letter-spacing:-.045em;
+ background:linear-gradient(100deg,#0c223a 30%,#00453f 66%);
+ background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+/* A backdrop filter would contain the fixed overlay inside the glass panel. */
+.st-key-solar_auth_panel:has(.sc-page-loading) {
+ -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+.st-key-solar_auth_panel [data-testid="stForm"] {
+ background:transparent;border:0;padding:0;
+}
+.st-key-solar_auth_panel :is(h3,[data-testid="stText"],[data-testid="stCaptionContainer"],[data-testid="stWidgetLabel"] p) {
+ color:#0c223a;
+}
+.st-key-solar_auth_panel [data-testid="stWidgetLabel"] p {
+ font-weight:600;
+}
+.st-key-solar_auth_panel [data-testid="stTextInputRootElement"] {
+ min-height:50px;border:1px solid #426487;border-radius:999px;
+ background:rgba(6,22,45,.56);
+ box-shadow:inset 0 1px 3px rgba(0,0,0,.24);
+}
+.st-key-solar_auth_panel [data-testid="stTextInputRootElement"]:focus-within {
+ border-color:#34ddf3;box-shadow:0 0 0 2px rgba(45,223,245,.25);
+}
+.st-key-solar_auth_panel [data-testid="stTextInputRootElement"] button {
+ background:transparent;
+}
+.st-key-solar_auth_panel input {color:#f2f9ff;}
+.st-key-solar_auth_panel input::placeholder {color:#b7cce2;opacity:1;}
+.st-key-solar_auth_panel [data-testid="stTextInput"] [data-testid="stIconMaterial"],
+.st-key-solar_auth_panel [data-testid="stTextInputRootElement"] button {color:#3edff0;}
+.st-key-solar_auth_panel .sc-auth-forgot {
+ text-align:right;
+}
+.st-key-solar_auth_panel a.sc-auth-link {
+ color:#0c223a;font-size:.875rem;font-weight:600;
+ text-decoration:underline;text-underline-offset:.18em;
+}
+.st-key-solar_auth_panel a.sc-auth-link:focus-visible {
+ outline:2px solid currentColor;outline-offset:3px;
+}
+.st-key-solar_auth_panel button[role="radio"][aria-checked="true"] {
+ background:#103e55;border-color:#299bac;color:#69f1f1;
+}
+.st-key-solar_auth_panel [data-testid="stFormSubmitButton"] button {
+ min-height:48px;border:0;border-radius:999px;
+ background:linear-gradient(102deg,#24ccff,#24e7a7);color:#081b2c;font-weight:700;
+}
+.st-key-solar_auth_panel [data-testid="stFormSubmitButton"] button:hover {
+ background:linear-gradient(102deg,#63e0ff,#61f3bf);
+}
+.st-key-solar_auth_panel [data-testid="stFormSubmitButton"] button:focus-visible {
+ outline:2px solid #74f9fa;outline-offset:3px;
+}
+.st-key-solar_auth_panel [data-testid="stAlertContainer"] {
+ background:#142438;
+}
+PAGE_LOADING_CSS
+</style>
+""".replace("LOGIN_BACKGROUND", background).replace("PAGE_LOADING_CSS", PAGE_LOADING_CSS))
+
+
 def apply_styles():
     asset = Path(__file__).with_name("solar-array.jpg")
     photo = b64encode(asset.read_bytes()).decode("ascii") if asset.is_file() else ""
     st.markdown("""
 <style>
 .stApp, [data-testid="stHeader"] {background:#0c1420;color:#edf2f7;}
-.stMainBlockContainer,.block-container {max-width:1220px;padding-top:3.25rem;padding-bottom:3rem;}
+[data-testid="stHeader"] {height:2.5rem;}
+.stMainBlockContainer,.block-container {max-width:1220px;padding-top:2.75rem;padding-bottom:3rem;}
+.st-key-solar_profile_email_row > [data-testid="stElementContainer"] {
+ flex:0 1 auto;min-width:0;overflow-wrap:anywhere;
+}
+[data-testid="stMain"] .st-key-overview_actions {
+ flex-direction:row !important;justify-content:flex-end;
+}
+.st-key-overview_actions [data-testid="stButton"] button {
+ min-height:44px;font-size:1rem;
+}
+.st-key-overview_actions [data-testid="stButton"] button:focus-visible {
+ outline:3px solid #edf2f7;outline-offset:3px;
+}
 [data-testid="stSidebar"] {background:#101b29;border-right:1px solid #26354a;}
-[data-testid="stSidebarUserContent"] {padding:0.95rem 1rem 1.5rem;}
+[data-testid="stSidebarUserContent"] {padding:calc(0.75rem + 0.35in) 1rem 1.25rem;}
+/* Keep the collapse control without reserving an empty header above the brand. */
+[data-testid="stSidebarHeader"] {
+ position:absolute;top:8px;right:8px;width:auto;height:32px;margin:0;z-index:2;
+}
+/* Let the utility navigation sit at the bottom and scroll on short screens. */
+.st-key-solar_sidebar_layout,
+.st-key-solar_sidebar_layout > [data-testid="stVerticalBlock"] {
+ min-height:calc(100vh - 2rem - 0.35in);min-height:calc(100dvh - 2rem - 0.35in);
+ display:flex;flex-direction:column;
+}
+/* Streamlit's layout wrapper is the flex item, not the keyed icon row. */
+.st-key-solar_sidebar_layout > [data-testid="stLayoutWrapper"]:has(.st-key-solar_sidebar_footer) {
+ margin-top:auto !important;flex-shrink:0;
+}
+[data-testid="stSidebar"] .st-key-solar_sidebar_footer {
+ width:100%;padding-top:16px;padding-bottom:env(safe-area-inset-bottom,0px);
+ border-top:1px solid #2a394d;
+}
+[data-testid="stSidebar"] .st-key-solar_sidebar_footer [data-testid="stButton"] button {
+ min-height:44px;justify-content:center !important;gap:0;padding:10px;
+}
+[data-testid="stSidebar"] .st-key-solar_sidebar_footer [data-testid="stButton"] button > div,
+[data-testid="stSidebar"] .st-key-solar_sidebar_footer [data-testid="stButton"] button [data-testid="stMarkdownContainer"] {
+ justify-content:center !important;gap:0;
+}
+/* Keep meaningful button names available to assistive technology. */
+[data-testid="stSidebar"] .st-key-solar_sidebar_footer [data-testid="stButton"] button p {
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+ clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 .sc-brand {
- display:flex;align-items:center;gap:11px;padding:5px 0 20px;margin:0 0 11px;
+ display:flex;align-items:center;gap:11px;padding:0 0 16px;margin:0 0 11px;
  border-bottom:1px solid #2a394d;
 }
 .sc-wordmark {
- color:#f1f5f9;font-size:32px;font-weight:800;line-height:1.04;
+ color:#f1f5f9;font-size:36px;font-weight:800;line-height:1.04;
  letter-spacing:-.055em;white-space:nowrap;
 }
 .sc-wordmark > span {color:#ffbe6b;}
 .sc-wordmark small {
- display:block;color:#b4c3d3;font-size:12px;font-weight:500;letter-spacing:0;margin-top:6px;
+ display:block;color:#b4c3d3;font-size:13px;font-weight:500;letter-spacing:0;margin-top:6px;
 }
 .sc-mark {
  position:relative;width:46px;height:46px;flex:0 0 46px;
@@ -43,16 +206,28 @@ def apply_styles():
 }
 .sc-hero {background-color:#172532;background-image:linear-gradient(90deg,#0a131ff7 0%,#0a131fe0 28%,#0a131f45 67%,#0a131f15 100%),url("data:image/jpeg;base64,PHOTO");background-size:cover;background-position:center 55%;border:1px solid #46515d;border-radius:13px;padding:32px 36px;min-height:305px;display:flex;flex-direction:column;justify-content:space-between;}
 .sc-title {margin:0;font-size:clamp(24px,4vw,35px);line-height:1.12;letter-spacing:-.05em;color:#f4f6f8;}
-.sc-hero time {display:block;margin-top:6px;color:#bfcedd;font-size:13px;}
-.sc-power-label {font-size:13px;font-weight:650;color:#d3dfeb;}
+.sc-hero time {display:table;margin-top:6px;padding:3px 8px;background:#0c1420;border-radius:4px;color:#d3dfeb;font-size:1rem;line-height:1.5;}
+.sc-power-label {display:table;padding:3px 8px;background:#0c1420;border-radius:4px;font-size:1rem;line-height:1.5;font-weight:650;color:#edf2f7;}
 .sc-number {font-size:clamp(46px,7vw,79px);letter-spacing:-.065em;line-height:1;font-weight:760;font-variant-numeric:tabular-nums;color:#fff;overflow-wrap:anywhere;}
-.sc-status {margin-top:9px;color:#ffd29a;font-size:13px;font-weight:650;}
+.sc-status {display:inline-flex;align-items:center;gap:8px;margin-top:9px;padding:6px 10px;background:#0c1420;border:1px solid #7c684c;border-radius:6px;color:#ffd29a;font-size:1rem;line-height:1.5;font-weight:650;}
+.sc-status-icon {width:22px;height:22px;flex:0 0 22px;}
 .sc-readings {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px;}
 .sc-reading {background:#141f2e;border:1px solid #2d3c50;border-radius:9px;padding:15px 17px;display:flex;flex-direction:column;gap:5px;}
-.sc-reading span {color:#bac8d9;font-size:13px;}
+.sc-reading span {color:#edf2f7;font-size:1rem;font-weight:600;line-height:1.5;}
 .sc-reading strong {color:#edf2f7;font-size:23px;font-variant-numeric:tabular-nums;}
+.sc-reading-value {display:flex;align-items:center;gap:10px;}
+.sc-weather-icon {display:block;width:38px;height:38px;flex:0 0 38px;color:#ffbe6b;}
 .sc-reading.sc-solar strong {color:#ffbe6b;}
-.sc-source {color:#acbdd0;margin:12px 0 3px;font-size:12px;}
+.sc-source {color:#bfcedd;margin:12px 0 3px;font-size:1rem;line-height:1.5;}
+/* Keep selected comparison labels readable against the amber theme. */
+[data-testid="stMultiSelect"] [data-baseweb="tag"],
+[data-testid="stMultiSelect"] [data-baseweb="tag"] span {
+ color:#181e28 !important;
+}
+[data-testid="stMultiSelect"] [data-baseweb="tag"] svg {color:#181e28 !important;}
+[data-testid="stSelectbox"] [data-baseweb="select"] > div {
+ color:#edf2f7;
+}
 
 .sc-loading {--sc-cycle:12s;position:fixed;inset:0;margin:0;z-index:10000000;isolation:isolate;overflow:hidden;width:100vw;max-width:none;padding:0;height:100vh;height:100dvh;border:0;border-radius:0;background:radial-gradient(ellipse at 50% 76%,#17395655,transparent 53%),linear-gradient(#070c18 0%,#0b1733 48%,#102951 85%,#142d42);text-align:center;box-shadow:0 0 0 100vmax #080f1d;animation:sc-reveal .6s ease-out;}
 .sc-loading > .sc-loading-village {position:absolute;inset:0;display:block;width:100%;height:100%;min-height:100%;margin:0;padding:0;border:0;background-size:100% 100%;background-position:center bottom;background-repeat:no-repeat;pointer-events:none;z-index:0;}
@@ -160,7 +335,7 @@ def apply_styles():
  .sc-loading-note {bottom:max(16px,env(safe-area-inset-bottom,0px));padding:0;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));font-size:8px;letter-spacing:.1em;line-height:1.5;}
  .sc-sun-surface {filter:blur(4px);}
  .stMainBlockContainer,.block-container {
-  box-sizing:border-box;width:100%;padding:3.75rem 1rem 2rem;
+  box-sizing:border-box;width:100%;padding:3rem 1rem 2rem;
  }
  .sc-hero {
   min-height:265px;padding:20px;background-position:62% center;
@@ -171,8 +346,8 @@ def apply_styles():
  .sc-readings {grid-template-columns:minmax(0,1fr);gap:8px;}
  .sc-reading {flex-direction:row;justify-content:space-between;align-items:center;gap:12px;}
  .sc-reading strong {font-size:19px;white-space:nowrap;}
- .sc-source {font-size:12px;line-height:1.5;}
- [data-testid="stMain"] [data-testid="stHorizontalBlock"] {
+ .sc-source {font-size:1rem;line-height:1.5;}
+ [data-testid="stMain"] [data-testid="stHorizontalBlock"]:not(.st-key-solar_profile_email_row) {
   flex-direction:column;gap:0.75rem;
  }
  [data-testid="stMain"] [data-testid="stHorizontalBlock"] > :is([data-testid="stColumn"],[data-testid="column"]) {
@@ -195,6 +370,7 @@ def apply_styles():
  .sc-loading-note {display:none;}
  .sc-loading > .sc-loading-village {background-size:cover;background-position:center bottom;}
 }
+PAGE_LOADING_CSS
 html:has(.sc-loading),body:has(.sc-loading) {overflow:hidden;overscroll-behavior:none;}
 </style>
-""".replace("PHOTO", photo), unsafe_allow_html=True)
+""".replace("PHOTO", photo).replace("PAGE_LOADING_CSS", PAGE_LOADING_CSS), unsafe_allow_html=True)

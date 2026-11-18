@@ -14,6 +14,37 @@ spec.loader.exec_module(loading)
 
 
 class LoadingTests(unittest.TestCase):
+    def test_each_navigation_has_a_distinct_scene_and_replays(self):
+        scenes = set()
+        with patch.object(loading, "st", Mock()) as ui, patch.object(loading, "sleep"):
+            for page in loading.PAGE_LOADERS:
+                for _ in range(2):
+                    slot = Mock()
+                    ui.empty.return_value = slot
+                    with loading.PageLoading(page):
+                        pass
+                    markup = slot.markdown.call_args.args[0]
+                    self.assertIn(page, markup)
+                    self.assertEqual(markup.count('style="--segment:'), 10)
+                    slot.empty.assert_called_once()
+                    scenes.add(markup)
+        self.assertEqual(len(scenes), 10)
+
+    def test_navigation_failure_clears_without_delay(self):
+        with patch.object(loading, "st", Mock()) as ui, patch.object(loading, "sleep") as delay:
+            with self.assertRaises(RuntimeError):
+                with loading.PageLoading("Power history"):
+                    raise RuntimeError("Failed to load")
+            ui.empty.return_value.empty.assert_called_once()
+            delay.assert_not_called()
+
+    def test_normal_page_interaction_skips_navigation_loader(self):
+        with patch.object(loading, "st", Mock()) as ui, patch.object(loading, "sleep") as delay:
+            with loading.PageLoading("Manual prediction", enabled=False):
+                pass
+            ui.empty.assert_not_called()
+            delay.assert_not_called()
+
     def test_refresh_skips_animation_and_delays(self):
         ui = Mock()
         with patch.object(loading, "st", ui), patch.object(loading, "sleep") as sleep:
@@ -92,7 +123,8 @@ class LoadingTests(unittest.TestCase):
 
     def test_reduced_motion_preserves_day_night_fades(self):
         css_source = (Path(__file__).resolve().parents[1] / "app" / "styles.py").read_text(encoding="utf-8")
-        reduced = css_source.split('@media (prefers-reduced-motion:reduce) {', 1)[1].split('[data-testid="stButton"]', 1)[0]
+        dashboard_css = css_source.split("def apply_styles():", 1)[1]
+        reduced = dashboard_css.split('@media (prefers-reduced-motion:reduce) {', 1)[1].split('[data-testid="stButton"]', 1)[0]
         disabled_selectors = reduced.split('{animation:none;}', 1)[0]
         self.assertNotIn('.sc-village-day', disabled_selectors)
         self.assertNotIn('.sc-daybreak', disabled_selectors)

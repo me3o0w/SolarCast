@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import streamlit as st
 
-from config import API_URL
+from weather_client import get_current_conditions
 from model_loader import module_temp_model
 
 # =========================================================
@@ -28,19 +28,7 @@ def render_live_conditions():
 
     try:
 
-        response = requests.get(
-            API_URL,
-            timeout=10
-        )
-
-        response.raise_for_status()
-
-        live_data = response.json()
-
-        current_data = live_data["current"]
-
-        live_temperature = current_data["temperature_2m"]
-        live_irradiation = current_data["shortwave_radiation"]
+        live_temperature, live_irradiation = get_current_conditions()
 
 
         # =================================================

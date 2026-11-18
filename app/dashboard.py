@@ -12,7 +12,7 @@ from model_loader import model
 def live_dashboard():
 
     st.divider()
-    st.header("📊 SolarCast Live Dashboard")
+    st.header("SolarCast Live Dashboard")
 
 
 def render_dashboard(
@@ -40,19 +40,19 @@ def render_dashboard(
 
         with col1:
             st.metric(
-                "🌡️ Ambient Temperature",
+                "Ambient Temperature",
                 f"{live_temperature:.1f} °C"
             )
 
         with col2:
             st.metric(
-                "☀️ Solar Irradiation",
+                "Solar Irradiation",
                 f"{live_irradiation:.1f} W/m²"
             )
 
         with col3:
             st.metric(
-                "🔥 Module Temperature",
+                "Module Temperature",
                 f"{estimated_module_temperature:.1f} °C"
             )
 
@@ -88,15 +88,15 @@ def render_dashboard(
 
         if dashboard_prediction < 300:
 
-            dashboard_status = "🔴 Low Generation"
+            dashboard_status = "Low Generation"
 
         elif dashboard_prediction < 700:
 
-            dashboard_status = "🟡 Moderate Generation"
+            dashboard_status = "Moderate Generation"
 
         else:
 
-            dashboard_status = "🟢 High Generation"
+            dashboard_status = "High Generation"
 
         # -------------------------------------------------
         # DISPLAY PREDICTION
