@@ -1,9 +1,6 @@
-import pandas as pd
-import requests
 import streamlit as st
 
 from weather_client import get_current_conditions
-from model_loader import module_temp_model
 
 # =========================================================
 # LIVE WEATHER DATA
@@ -32,17 +29,10 @@ def render_live_conditions():
 
 
         # =================================================
-        # ESTIMATE MODULE TEMPERATURE
+        # ESTIMATE MODULE TEMPERATURE (Empirical Formula)
         # =================================================
-
-        module_input = pd.DataFrame([{
-            "IRRADIATION": live_irradiation,
-            "AMBIENT_TEMPERATURE": live_temperature
-        }])
-
-        estimated_module_temperature = module_temp_model.predict(
-            module_input
-        )[0]
+        # T_module = T_ambient + (0.025 × irradiance in W/m²)
+        estimated_module_temperature = live_temperature + (0.025 * live_irradiation)
 
 
         # =================================================
@@ -75,8 +65,7 @@ def render_live_conditions():
 
         st.caption(
             "Live weather and solar data provided by Open-Meteo. "
-            "Module temperature is estimated using a trained "
-            "secondary regression model."
+            "Module temperature is estimated from ambient temperature and solar irradiance."
         )
 
     except Exception as e:

@@ -21,7 +21,7 @@ from manual_pred import render_manual_prediction
 from model_info import render_model_info
 from terms import render_terms
 from about import render_about
-from model_loader import model, module_temp_model
+from model_loader import model
 
 # OneDrive can miss module-change notifications. Reload these stateless UI
 # modules on each Streamlit rerun so the scene, timing, and CSS stay in sync.
@@ -112,7 +112,8 @@ def render_overview():
                 "IRRADIATION": irradiation,
                 "AMBIENT_TEMPERATURE": ambient,
             }])
-            module = module_temp_model.predict(weather)[0]
+            # Estimate module temperature from ambient temperature and irradiance in W/m².
+            module = ambient + (0.025 * irradiation)
             loading.update(2)
             features = weather.assign(
                 MODULE_TEMPERATURE=module, HOUR=now.hour, MINUTE=now.minute,
